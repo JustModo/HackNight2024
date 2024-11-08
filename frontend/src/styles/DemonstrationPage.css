@@ -1,0 +1,31 @@
+/* src/styles/DemonstrationPage.css */
+
+.demonstration-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  background-color: #f0f4f8;
+  border-radius: 8px;
+  max-width: 600px;
+  margin: 2rem auto;
+}
+
+.output-box {
+  margin-top: 2rem;
+  padding: 2rem;
+  background-color: #e0f7fa;
+  color: #004d40;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.braille-output,
+.ascii-output {
+  font-size: 3rem; /* Large font for easy viewing */
+  line-height: 1.2;
+  margin: 0;
+}
