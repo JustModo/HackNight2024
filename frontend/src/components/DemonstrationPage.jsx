@@ -1,5 +1,5 @@
 // src/components/DemonstrationPage.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "../styles/DemonstrationPage.css";
 import io from "socket.io-client";
 
@@ -53,17 +53,14 @@ const socket = io("http://localhost:5000");
 const DemonstrationPage = () => {
   const [brailleOutput, setBrailleOutput] = useState("");
   const [asciiValues, setAsciiValues] = useState("");
-  const [output, setOutput] = useState("");
+
+  const prevAsciiValues = useRef("");
 
   const getMapping = (str) => {
     str = String(str).toLowerCase();
     setAsciiValues(String(str).toUpperCase());
     setBrailleOutput(brailleMapping[str]);
   };
-
-  // useEffect(() => {
-  //   getMapping("g");
-  // }, []);
 
   useEffect(() => {
     socket.on("ocr_result", (char) => {
@@ -76,6 +73,15 @@ const DemonstrationPage = () => {
       socket.off("ocr_result");
     };
   }, []);
+
+  useEffect(() => {
+    if (asciiValues !== prevAsciiValues.current) {
+      const utterance = new SpeechSynthesisUtterance(asciiValues);
+      window.speechSynthesis.speak(utterance);
+
+      prevAsciiValues.current = asciiValues;
+    }
+  }, [asciiValues]); // Only re-run if asciiValues changes
 
   return (
     <div className="w-screen h-screen flex flex-col items-center p-8 text-white">
@@ -103,9 +109,9 @@ const DemonstrationPage = () => {
           </div>
         </div>
       </div>
-      <h1 className="text-4xl font-extrabold py-4 px-12 text-indigo-500 text-center">
+      {/* <h1 className="text-4xl font-extrabold py-4 px-12 text-indigo-500 text-center">
         {`Output: ${output}`}
-      </h1>
+      </h1> */}
     </div>
   );
 };

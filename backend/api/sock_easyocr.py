@@ -18,7 +18,7 @@ hands = mp_hands.Hands(static_image_mode=False, max_num_hands=1,
                        min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
 # Initialize EasyOCR Reader
-reader = easyocr.Reader(['en'])
+reader = easyocr.Reader(['en'])q
 
 # OCR Timing and Position Tracking Variables
 ocr_interval = 0.5
@@ -31,13 +31,17 @@ INDEX_FINGER_TIP = 8
 capture_url = "http://192.168.79.51:8080/video"
 
 # SocketIO event for character transmission
+
+
 @socketio.on('connect')
 def handle_connect():
     print("Client connected")
 
+
 @socketio.on('disconnect')
 def handle_disconnect():
     print("Client disconnected")
+
 
 def detect_character():
     global last_ocr_time, prev_cx, prev_cy
@@ -54,10 +58,13 @@ def detect_character():
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
                 h, w, _ = frame.shape
-                fingertip_x = int(hand_landmarks.landmark[INDEX_FINGER_TIP].x * w)
-                fingertip_y = int(hand_landmarks.landmark[INDEX_FINGER_TIP].y * h)
+                fingertip_x = int(
+                    hand_landmarks.landmark[INDEX_FINGER_TIP].x * w)
+                fingertip_y = int(
+                    hand_landmarks.landmark[INDEX_FINGER_TIP].y * h)
 
-                cv2.circle(frame, (fingertip_x, fingertip_y), 10, (255, 0, 255), cv2.FILLED)
+                cv2.circle(frame, (fingertip_x, fingertip_y),
+                           10, (255, 0, 255), cv2.FILLED)
 
                 current_time = time.time()
                 if (current_time - last_ocr_time > ocr_interval) and ((fingertip_x, fingertip_y) != (prev_cx, prev_cy)):
@@ -69,8 +76,10 @@ def detect_character():
                     fingertip_region = frame[y1:y2, x1:x2]
 
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                    fingertip_region_gray = cv2.cvtColor(fingertip_region, cv2.COLOR_BGR2GRAY)
-                    _, fingertip_thresh = cv2.threshold(fingertip_region_gray, 130, 255, cv2.THRESH_BINARY_INV)
+                    fingertip_region_gray = cv2.cvtColor(
+                        fingertip_region, cv2.COLOR_BGR2GRAY)
+                    _, fingertip_thresh = cv2.threshold(
+                        fingertip_region_gray, 130, 255, cv2.THRESH_BINARY_INV)
 
                     ocr_results = reader.readtext(fingertip_thresh, detail=1,
                                                   allowlist='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
@@ -93,9 +102,11 @@ def detect_character():
     video_capture.release()
     cv2.destroyAllWindows()
 
+
 @socketio.on('start_ocr')
 def handle_start_ocr():
     threading.Thread(target=detect_character).start()
+
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000, debug=True)
